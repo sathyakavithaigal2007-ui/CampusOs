@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>CampusOS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:dark;--bg:#0a0f1e;--bg2:#121a30;--glass:rgba(255,255,255,.06);--bd:rgba(255,255,255,.12);--tx:#e8ecf8;--mu:#93a0c0;--b:#3b82f6;--v:#8b5cf6;--ok:#34d399;--wa:#fbbf24;--er:#f87171;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,sans-serif;background:radial-gradient(900px 500px at 10% -10%,#1d2a6b55,transparent),radial-gradient(700px 500px at 100% 0,#5b21b655,transparent),var(--bg);color:var(--tx);min-height:100vh}
+nav{display:flex;gap:6px;padding:12px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);backdrop-filter:blur(14px);background:#0a0f1ecc;z-index:5;border-bottom:1px solid var(--bd)}
+nav b{background:linear-gradient(90deg,var(--b),var(--v));-webkit-background-clip:text;color:transparent;font-size:20px;margin:0 10px 0 4px;align-self:center}
+nav a{color:var(--mu);text-decoration:none;padding:8px 14px;border-radius:10px;white-space:nowrap;font-size:14px;transition:.2s}
+nav a.on,nav a:hover{background:linear-gradient(90deg,#3b82f640,#8b5cf640);color:var(--tx)}
+main{max-width:1050px;margin:0 auto;padding:18px;animation:f .4s}@keyframes f{from{opacity:0;transform:translateY(8px)}}
+h1{font-size:26px;margin:6px 0 4px}h2{font-size:17px;margin:0 0 10px}p.s{color:var(--mu);margin:0 0 16px;font-size:14px}
+.g{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.c{background:var(--glass);border:1px solid var(--bd);border-radius:16px;padding:16px;backdrop-filter:blur(12px)}
+.k{font-size:30px;font-weight:700}.mu{color:var(--mu);font-size:13px}
+input,select,textarea,button{font:inherit;color:var(--tx);background:#0d1428;border:1px solid var(--bd);border-radius:10px;padding:9px 11px}
+textarea{width:100%;min-height:110px}input,select{max-width:100%}
+button{cursor:pointer;background:linear-gradient(90deg,var(--b),var(--v));border:0;font-weight:600;transition:.2s}button:hover{transform:translateY(-1px);filter:brightness(1.1)}
+button.q{background:#ffffff14;border:1px solid var(--bd);font-weight:400;padding:5px 9px;font-size:13px}
+.r{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.bar{height:8px;border-radius:9px;background:#ffffff18;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--b),var(--v))}
+.tag{padding:2px 9px;border-radius:99px;font-size:12px;background:#ffffff14}.ok{color:var(--ok)}.wa{color:var(--wa)}.er{color:var(--er)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff10}
+.note{border-left:3px solid var(--v);padding:8px 12px;background:#ffffff08;border-radius:8px;margin:8px 0;font-size:14px}
+.demo{font-size:12px;color:var(--wa);border:1px dashed var(--wa);padding:6px 10px;border-radius:9px;margin-bottom:12px}
+.hero{text-align:center;padding:40px 10px}.hero h1{font-size:40px;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;color:transparent}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<nav id="nav"></nav><main id="app"></main>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const day=86400000,today=()=>new Date(new Date().toDateString()).getTime();
+const iso=o=>new Date(today()+o*day).toISOString().slice(0,10);
+const seed={subs:[{n:'Data Structures',a:21,t:30},{n:'Operating Systems',a:17,t:26},{n:'DBMS',a:24,t:28},{n:'Maths III',a:14,t:22}],
+tasks:[{id:1,t:'DSA assignment 3',s:'Data Structures',d:iso(2),h:3,x:0},{id:2,t:'OS lab record',s:'Operating Systems',d:iso(4),h:2,x:0},{id:3,t:'DBMS ER diagram',s:'DBMS',d:iso(7),h:2,x:0},{id:4,t:'Maths problem set',s:'Maths III',d:iso(-1),h:2,x:0},{id:5,t:'Revise Unit 1',s:'DBMS',d:iso(10),h:1.5,x:1}],
+notes:[{id:1,title:'DBMS Unit 2 - Normalization',text:'Normalization reduces redundancy in relational databases. First normal form requires atomic values in every column.\n\nSecond normal form removes partial dependency on a composite primary key. Third normal form removes transitive dependency between non-key attributes.\n\nBCNF is a stricter version of third normal form where every determinant must be a candidate key.'}],cap:3};
+let S;try{S=JSON.parse(localStorage.getItem('campusos'))}catch(e){}if(!S||!S.subs)S=JSON.parse(JSON.stringify(seed));
+const save=()=>{try{localStorage.setItem('campusos',JSON.stringify(S))}catch(e){}};
+const pct=s=>s.t?s.a/s.t*100:0,need=s=>Math.max(0,Math.ceil((.75*s.t-s.a)/.25)),canMiss=s=>Math.max(0,Math.floor(s.a/.75-s.t));
+const days=t=>Math.round((new Date(t.d).getTime()-today())/day);
+const prio=t=>{if(t.x)return -1;const sb=S.subs.find(s=>s.n===t.s),low=sb&&pct(sb)<75?1.5:1,dd=days(t);return (dd<0?6:3/(dd+1))*t.h*low};
+function risk(){let sc=0,why=[];const low=S.subs.filter(s=>pct(s)<75);if(low.length){sc+=low.length*18;why.push(`Attendance below 75% in ${low.map(s=>esc(s.n)).join(', ')}. Attend the next ${low.map(s=>need(s)).reduce((a,b)=>a+b,0)} classes across them to recover eligibility.`)}
+const od=S.tasks.filter(t=>!t.x&&days(t)<0);if(od.length){sc+=od.length*15;why.push(`${od.length} overdue task(s): start with "${esc(od[0].t)}".`)}
+const dn=S.tasks.filter(t=>t.x).length,rt=S.tasks.length?dn/S.tasks.length:1;if(rt<.4){sc+=15;why.push(`Only ${Math.round(rt*100)}% of tasks completed. Break work into 25-minute sessions.`)}
+const soon=S.tasks.filter(t=>!t.x&&days(t)>=0&&days(t)<=2);if(soon.length>2){sc+=10;why.push('Several deadlines land within 2 days: consider asking for an extension early.')}
+sc=Math.min(100,sc);return{sc,lv:sc>=55?'High':sc>=25?'Moderate':'Low',cl:sc>=55?'er':sc>=25?'wa':'ok',why}}
+function ring(v,c){const r=42,L=2*Math.PI*r;return `<svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="${r}" fill="none" stroke="#ffffff18" stroke-width="10"/><circle cx="55" cy="55" r="${r}" fill="none" stroke="${c}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${L*v/100} ${L}" transform="rotate(-90 55 55)"/><text x="55" y="61" text-anchor="middle" fill="#e8ecf8" font-size="20" font-weight="700">${Math.round(v)}%</text></svg>`}
+function plan(){const out=[];let left=S.cap;const ts=S.tasks.filter(t=>!t.x).sort((a,b)=>prio(b)-prio(a));for(const t of ts){if(left<=0)break;const h=Math.min(t.h,left);out.push({t,h});left-=h}return out}
+const pages={
+home(){const o=S.subs.reduce((a,s)=>a+s.a,0),tt=S.subs.reduce((a,s)=>a+s.t,0),R=risk(),p=plan()[0];
+return `<h1>Welcome back</h1><p class="s">Your Campus. Your Intelligence. Your Future.</p><div class="g">
+<div class="c"><h2>Overall attendance</h2><div class="r">${ring(tt?o/tt*100:0,o/tt>=.75?'#34d399':'#fbbf24')}<div class="mu">${S.subs.filter(s=>pct(s)<75).length} subject(s) below 75%</div></div></div>
+<div class="c"><h2>Academic risk signal</h2><div class="k ${R.cl}">${R.lv}</div><div class="mu">Pattern-based indicator, not an exam-result prediction.</div><p><a href="#analytics" style="color:#93c5fd">See recommendations</a></p></div>
+<div class="c"><h2>Next best action</h2>${p?`<div class="k" style="font-size:20px">${esc(p.t.t)}</div><div class="mu">${esc(p.t.s)} · due ${p.t.d} · ${p.h}h today</div>`:'<div class="ok">All caught up. Nice work.</div>'}<p><a href="#planner" style="color:#93c5fd">Open planner</a></p></div></div>
+<div class="c" style="margin-top:14px"><h2>Attendance by subject</h2>${S.subs.map(s=>`<div class="row"><span style="width:150px">${esc(s.n)}</span><div class="bar" style="flex:1"><i style="width:${pct(s)}%"></i></div><b class="${pct(s)<75?'er':'ok'}">${pct(s).toFixed(1)}%</b></div>`).join('')}</div>`},
+attendance(){return `<h1>Attendance Intelligence</h1><p class="s">Eligibility at 75%. Simulate before you skip.</p><div class="g">${S.subs.map((s,i)=>`<div class="c"><h2>${esc(s.n)} <span class="tag ${pct(s)<75?'er':'ok'}">${pct(s).toFixed(1)}%</span></h2><div class="mu">${s.a}/${s.t} classes · ${pct(s)>=75?`can miss ${canMiss(s)} more`:`attend next ${need(s)} to reach 75%`}</div><div class="bar" style="margin:10px 0"><i style="width:${pct(s)}%"></i></div>
+<div class="r"><button class="q" onclick="mark(${i},1)">+ Present</button><button class="q" onclick="mark(${i},0)">+ Absent</button><button class="q" onclick="delSub(${i})">Remove</button></div>
+<div class="r mu">Simulate: attend <input id="sa${i}" type="number" min="0" value="0" style="width:60px"> miss <input id="sm${i}" type="number" min="0" value="1" style="width:60px"> <button class="q" onclick="sim(${i})">Run</button></div><div id="so${i}" class="note" style="display:none"></div></div>`).join('')}
+<div class="c"><h2>Add subject</h2><form onsubmit="return addSub(event)"><div class="r"><input id="ns" placeholder="Subject" required maxlength="40"><input id="na" type="number" min="0" placeholder="Attended" required style="width:90px"><input id="nt" type="number" min="1" placeholder="Total" required style="width:80px"><button>Add</button></div></form></div></div>`},
+planner(){const p=plan(),tot=p.reduce((a,x)=>a+x.h,0);
+return `<h1>Adaptive Study Planner</h1><p class="s">Priority = deadline urgency × effort × attendance risk. Plans re-rank as you complete tasks.</p><div class="g"><div class="c"><h2>Today's plan (${S.cap}h available)</h2>${p.map(x=>`<div class="row"><div>${esc(x.t.t)}<div class="mu">${esc(x.t.s)} · due ${x.t.d}${days(x.t)<0?' <b class="er">overdue</b>':''}</div></div><span class="tag">${x.h}h</span></div>`).join('')||'<div class="ok">Nothing pending.</div>'}<div class="note">${Math.ceil(tot*60/50)} focus blocks of 50 min, with 10 min breaks between; take a longer 30 min break after every 3 blocks.</div>
+<div class="r mu">Daily hours <input type="number" min="1" max="12" value="${S.cap}" style="width:70px" onchange="S.cap=Math.max(1,Math.min(12,+this.value||3));save();go()"></div></div>
+<div class="c"><h2>Tasks</h2>${S.tasks.slice().sort((a,b)=>prio(b)-prio(a)).map(t=>`<div class="row"><label><input type="checkbox" ${t.x?'checked':''} onchange="tog(${t.id})"> <span style="${t.x?'text-decoration:line-through;opacity:.5':''}">${esc(t.t)}</span></label><span class="mu">${t.d} <button class="q" onclick="delT(${t.id})">✕</button></span></div>`).join('')}
+<form onsubmit="return addT(event)"><div class="r"><input id="tt" placeholder="New task" required maxlength="60"><select id="ts">${S.subs.map(s=>`<option>${esc(s.n)}</option>`).join('')}</select><input id="td" type="date" required><input id="th" type="number" step=".5" min=".5" value="1" style="width:70px"><button>Add</button></div></form></div></div>`},
+assistant(){return `<h1>Academic Assistant</h1><p class="s">Search your notes, generate revision questions.</p><div class="demo">Runs fully in your browser using TF-IDF keyword retrieval and sentence-based question generation. Gemini + RAG needs a server-side key and is not connected in this hosted build; see the architecture notes in the reply.</div>
+<div class="g"><div class="c"><h2>Add notes</h2><form onsubmit="return addN(event)"><input id="nti" placeholder="Title (e.g. OS Unit 3)" required maxlength="60" style="width:100%;margin-bottom:8px"><textarea id="nte" placeholder="Paste lecture text; separate paragraphs with a blank line" required></textarea><div class="r"><button>Save</button></div></form>${S.notes.map(n=>`<div class="row"><span>${esc(n.title)}</span><button class="q" onclick="delN(${n.id})">Delete</button></div>`).join('')}</div>
+<div class="c"><h2>Ask / search</h2><div class="r"><input id="q" placeholder="e.g. what is third normal form" style="flex:1"><button onclick="ask()">Search</button><button class="q" onclick="quiz()">Quiz me</button></div><div id="aout"></div></div></div>`},
+career(){return `<h1>Career Gap Analyzer</h1><p class="s">Compare your resume with a target job description.</p><div class="demo">Skill extraction uses a built-in skills dictionary (no LLM). Resource suggestions are topics, not invented links.</div><div class="g"><div class="c"><h2>Your resume text</h2><textarea id="rs" placeholder="Paste resume text"></textarea></div><div class="c"><h2>Job description</h2><textarea id="jd" placeholder="Paste job description"></textarea></div></div><div class="r"><button onclick="gap()">Analyze gap</button></div><div id="cout"></div>`},
+analytics(){const R=risk();return `<h1>Predictive Analytics</h1><p class="s">Early-warning signals from attendance, deadlines and completion.</p><div class="g"><div class="c"><h2>Risk score</h2><div class="r">${ring(R.sc,R.sc>=55?'#f87171':R.sc>=25?'#fbbf24':'#34d399')}<div><b class="${R.cl}">${R.lv}</b><div class="mu">Heuristic signal, not a guarantee of results.</div></div></div></div><div class="c"><h2>Recommended actions</h2>${R.why.map(w=>`<div class="note">${w}</div>`).join('')||'<div class="ok">No warning signals. Keep your streak.</div>'}</div><div class="c"><h2>Task completion</h2>${(()=>{const d=S.tasks.filter(t=>t.x).length,n=S.tasks.length;return `<div class="k">${d}/${n}</div><div class="bar"><i style="width:${n?d/n*100:0}%"></i></div>`})()}</div></div>
+<div class="c" style="margin-top:14px"><h2>Attendance chart</h2><svg viewBox="0 0 400 150" width="100%">${S.subs.map((s,i)=>{const w=400/S.subs.length,h=pct(s)*1.2;return `<rect x="${i*w+w*.2}" y="${130-h}" width="${w*.6}" height="${h}" rx="6" fill="${pct(s)<75?'#f87171':'#6366f1'}"/><text x="${i*w+w/2}" y="146" font-size="9" fill="#93a0c0" text-anchor="middle">${esc(s.n.slice(0,12))}</text>`}).join('')}<line x1="0" x2="400" y1="${130-90}" y2="${130-90}" stroke="#fbbf24" stroke-dasharray="4"/></svg></div>`},
+profile(){return `<h1>Profile &amp; Settings</h1><p class="s">Data is stored locally in this browser.</p><div class="c"><button onclick="if(confirm('Reset all data to sample data?')){S=JSON.parse(JSON.stringify(seed));save();go()}">Reset to sample data</button></div>`}};
+const names={home:'Dashboard',attendance:'Attendance',planner:'Planner',assistant:'Assistant',career:'Career',analytics:'Analytics',profile:'Profile'};
+function go(){let h=location.hash.slice(1);if(!pages[h])h='home';$('#nav').innerHTML='<b>CampusOS</b>'+Object.keys(names).map(k=>`<a href="#${k}" class="${k==h?'on':''}">${names[k]}</a>`).join('');$('#app').innerHTML=pages[h]()}
+addEventListener('hashchange',go);
+const mark=(i,p)=>{S.subs[i].t++;if(p)S.subs[i].a++;save();go()},delSub=i=>{S.subs.splice(i,1);save();go()};
+function addSub(e){e.preventDefault();const a=+$('#na').value,t=+$('#nt').value;if(a>t){alert('Attended cannot exceed total.');return false}S.subs.push({n:$('#ns').value.trim(),a,t});save();go();return false}
+function sim(i){const s=S.subs[i],a=Math.max(0,+$('#sa'+i).value||0),m=Math.max(0,+$('#sm'+i).value||0),n={a:s.a+a,t:s.t+a+m},p=pct(n),o=$('#so'+i);o.style.display='block';o.innerHTML=`After ${a} attended and ${m} missed: <b class="${p<75?'er':'ok'}">${p.toFixed(1)}%</b> (${p>=75?'eligible':'need '+need(n)+' more classes'}).`}
+const tog=id=>{const t=S.tasks.find(x=>x.id==id);t.x=t.x?0:1;save();go()},delT=id=>{S.tasks=S.tasks.filter(t=>t.id!=id);save();go()};
+function addT(e){e.preventDefault();S.tasks.push({id:Date.now(),t:$('#tt').value.trim(),s:$('#ts').value,d:$('#td').value,h:Math.max(.5,+$('#th').value||1),x:0});save();go();return false}
+function addN(e){e.preventDefault();S.notes.push({id:Date.now(),title:$('#nti').value.trim(),text:$('#nte').value});save();go();return false}
+const delN=id=>{S.notes=S.notes.filter(n=>n.id!=id);save();go()};
+const tok=s=>s.toLowerCase().match(/[a-z0-9]+/g)||[],stop=new Set('the a an is of to in and or for what how are on with by it as at be this that'.split(' '));
+const chunks=()=>S.notes.flatMap(n=>n.text.split(/\n\s*\n/).filter(x=>x.trim()).map((x,i)=>({src:n.title,p:i+1,x})));
+function ask(){const q=tok($('#q').value).filter(w=>!stop.has(w)),C=chunks(),o=$('#aout');if(!q.length){o.innerHTML='<div class="mu">Type a question first.</div>';return}
+const df=w=>C.filter(c=>tok(c.x).includes(w)).length,sc=C.map(c=>{const T=tok(c.x);return{c,s:q.reduce((a,w)=>a+T.filter(x=>x==w).length*Math.log(1+C.length/(1+df(w))),0)}}).filter(r=>r.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+o.innerHTML=sc.map(r=>`<div class="note">${esc(r.c.x)}<div class="mu">Source: ${esc(r.c.src)}, paragraph ${r.c.p}</div></div>`).join('')||'<div class="mu">No matching passage in your notes.</div>'}
+function quiz(){const C=chunks(),o=$('#aout'),qs=[];C.forEach(c=>c.x.split(/(?<=[.!?])\s+/).forEach(s=>{const w=s.match(/[A-Za-z]{6,}/g);if(w&&s.length>40){const k=w.sort((a,b)=>b.length-a.length)[0];qs.push({q:s.replace(k,'_____'),a:k,src:c.src})}}));
+o.innerHTML=qs.slice(0,5).map((x,i)=>`<div class="note">Q${i+1}. Fill in the blank: ${esc(x.q)}<details><summary class="mu">Answer</summary>${esc(x.a)} <span class="mu">(${esc(x.src)})</span></details></div>`).join('')||'<div class="mu">Add notes first.</div>'}
+const SK={python:'Python',java:'Java',javascript:'JavaScript',typescript:'TypeScript',react:'React',node:'Node.js',sql:'SQL',postgres:'PostgreSQL',mongodb:'MongoDB',docker:'Docker',git:'Git',aws:'AWS',kubernetes:'Kubernetes','machine learning':'Machine Learning','data structures':'Data Structures','algorithms':'Algorithms','rest':'REST APIs',fastapi:'FastAPI',django:'Django',flask:'Flask','spring':'Spring Boot',linux:'Linux',html:'HTML',css:'CSS',tailwind:'Tailwind CSS','ci/cd':'CI/CD',redis:'Redis','communication':'Communication',pandas:'Pandas',tensorflow:'TensorFlow'};
+const skills=t=>{const l=t.toLowerCase(),r=new Set;for(const k in SK)if(new RegExp('(^|[^a-z])'+k.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&')+'([^a-z]|$)').test(l))r.add(SK[k]);return[...r]};
+function gap(){const r=skills($('#rs').value),j=skills($('#jd').value),o=$('#cout');if(!j.length){o.innerHTML='<div class="c mu">Paste a job description that mentions technical skills.</div>';return}
+const m=j.filter(s=>r.includes(s)),x=j.filter(s=>!r.includes(s)),rd=Math.round(m.length/j.length*100);
+o.innerHTML=`<div class="g"><div class="c"><h2>Readiness</h2>${ring(rd,'#8b5cf6')}</div><div class="c"><h2>Matched</h2>${m.map(s=>`<span class="tag ok">${esc(s)}</span> `).join('')||'<span class="mu">None</span>'}<h2 style="margin-top:12px">Missing</h2>${x.map(s=>`<span class="tag er">${esc(s)}</span> `).join('')||'<span class="ok">No gaps found</span>'}</div></div>
+<div class="c" style="margin-top:14px"><h2>Weekly roadmap</h2>${x.map((s,i)=>`<div class="row"><span>Week ${i+1}: learn ${esc(s)} fundamentals, then build a small project using it</span></div>`).join('')||'<span class="mu">Focus on interview practice.</span>'}</div>
+<div class="c" style="margin-top:14px"><h2>Interview questions</h2>${j.slice(0,6).map(s=>`<div class="note">Explain a project where you used ${esc(s)}. What trade-offs did you face?</div>`).join('')}</div>`}
+go();
+</script></body></html>

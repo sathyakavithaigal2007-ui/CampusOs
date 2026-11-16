@@ -1,0 +1,50 @@
+# 🎓 CampusOS
+
+> Your Campus. Your Intelligence. Your Future.
+
+CampusOS helps college students act early instead of reacting late. It combines attendance planning, an adaptive study planner, notes search and a career gap analyzer in one dashboard.
+
+**Live demo:** https://YOUR-USERNAME.github.io/campusos/
+
+## Why CampusOS?
+Students juggle attendance rules, deadlines, revision and placements in separate tools. CampusOS puts these together and turns the data into next steps.
+
+## Features
+| Module | What it does |
+|---|---|
+| Attendance | Subject-wise percentage, 75% eligibility, classes you can miss or must attend, "what if" simulator |
+| Adaptive planner | Ranks tasks by deadline urgency × effort × attendance risk and builds a daily plan with focus blocks and breaks |
+| Notes assistant | TF-IDF search with note and paragraph citations, fill-in-the-blank quiz generation |
+| Career gap analyzer | Compares resume and job description skills, gives a readiness score, weekly roadmap and interview questions |
+| Analytics | Early-warning risk signal from attendance, overdue tasks and completion rate |
+
+> The risk score is a heuristic signal, not a prediction of exam results.
+
+## Tech
+HTML, CSS and vanilla JavaScript. Data is stored in the browser (`localStorage`). There is no backend or LLM in this version.
+
+## Run locally
+```bash
+git clone https://github.com/YOUR-USERNAME/campusos.git
+cd campusos
+python3 -m http.server 8000
+```
+Open http://localhost:8000
+
+## How the planner ranks tasks
+`priority = (3 / (days_to_due + 1)) × hours × (1.5 if subject attendance < 75%)`
+Overdue tasks use a weight of 6. Completed tasks drop out, so the plan adapts.
+
+## Roadmap
+- [ ] FastAPI + PostgreSQL backend with JWT auth
+- [ ] Gemini RAG over uploaded PDFs with page citations (pgvector)
+- [ ] Resume parsing and agent workflow that writes roadmap tasks into the planner
+- [ ] Opportunity Radar using real sourced listings only
+- [ ] Study groups and project collaboration
+- [ ] Automated tests
+
+## Contributing
+Issues and pull requests are welcome. Open an issue first for large changes.
+
+## License
+MIT
